@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 #
 #
 ####### DO NOT EDIT DO NOT EDIT DO NOT EDIT DO NOT EDIT DO NOT EDIT ######
@@ -40,6 +41,22 @@ from trestle.oscal.common import TaskValidValues
 from trestle.oscal.common import TokenDatatype
 
 
+class Address(OscalBaseModel):
+    """
+    A postal address for the location.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    type: Optional[Union[TokenDatatype, AddressTypeValidValues]] = Field(None, description='Indicates the type of address.', title='Address Type')
+    addr_lines: Optional[List[constr(regex=r'^\S(.*\S)?$')]] = Field(None, alias='addr-lines')
+    city: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, description='City, town or geographical region for the mailing address.', title='City')
+    state: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, description='State, province or analogous geographical region for a mailing address.', title='State')
+    postal_code: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, alias='postal-code', description='Postal or ZIP code for mailing address.', title='Postal Code')
+    country: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, description='The ISO 3166-1 alpha-2 country code for the mailing address.', title='Country Code')
+
+
 class TermsAndConditions(OscalBaseModel):
     """
     Used to define various terms and conditions under which an assessment, described by the plan, can be performed. Each child part defines a different type of term or condition.
@@ -49,6 +66,49 @@ class TermsAndConditions(OscalBaseModel):
         extra = Extra.forbid
 
     parts: Optional[List[common.AssessmentPart]] = Field(None)
+
+
+class TelephoneNumber(OscalBaseModel):
+    """
+    A telephone service number as defined by ITU-T E.164.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    type: Optional[Union[StringDatatype, TelephoneTypeValidValues]] = Field(None, description='Indicates the type of phone number.', title='type flag')
+    number: constr(regex=r'^\S(.*\S)?$')
+
+
+class SelectControlById(OscalBaseModel):
+    """
+    Used to select a control for inclusion/exclusion based on one or more control identifiers. A set of statement identifiers can be used to target the inclusion/exclusion to only specific control statements providing more granularity over the specific statements that are within the asessment scope.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    control_id: constr(regex=r'^[_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-\.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$') = Field(..., alias='control-id', description='A reference to a control with a corresponding id value. When referencing an externally defined control, the Control Identifier Reference must be used in the context of the external / imported OSCAL instance (e.g., uri-reference).', title='Control Identifier Reference')
+    statement_ids: Optional[List[constr(regex=r'^[_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-\.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$')]] = Field(None, alias='statement-ids')
+
+
+class Location(OscalBaseModel):
+    """
+    A physical point of presence, which may be associated with people, organizations, or other concepts within the current or linked OSCAL document.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    uuid: constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$') = Field(..., description='A unique ID for the location, for reference.', title='Location Universally Unique Identifier')
+    title: Optional[str] = Field(None, description='A name given to the location, which may be used by a tool for display and navigation.', title='Location Title')
+    address: Optional[Address] = None
+    email_addresses: Optional[List[EmailAddressDatatype]] = Field(None, alias='email-addresses')
+    telephone_numbers: Optional[List[TelephoneNumber]] = Field(None, alias='telephone-numbers')
+    urls: Optional[List[AnyUrl]] = Field(None)
+    props: Optional[List[common.Property]] = Field(None)
+    links: Optional[List[common.Link]] = Field(None)
+    remarks: Optional[str] = None
 
 
 class LocalDefinitions(OscalBaseModel):
@@ -67,6 +127,78 @@ class LocalDefinitions(OscalBaseModel):
     remarks: Optional[str] = None
 
 
+class ExternalId(OscalBaseModel):
+    """
+    An identifier for a person or organization using a designated scheme. e.g. an Open Researcher and Contributor ID (ORCID).
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    scheme: Union[URIDatatype, ExternalSchemeValidValues] = Field(..., description='Indicates the type of external identifier.', title='External Identifier Schema')
+    id: constr(regex=r'^\S(.*\S)?$')
+
+
+class DocumentId(OscalBaseModel):
+    """
+    A document identifier qualified by an identifier scheme.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    scheme: Optional[Union[URIDatatype, DocumentSchemeValidValues]] = Field(None, description='Qualifies the kind of document identifier using a URI. If the scheme is not provided the value of the element will be interpreted as a string of characters.', title='Document Identification Scheme')
+    identifier: constr(regex=r'^\S(.*\S)?$')
+
+
+class Party(OscalBaseModel):
+    """
+    An organization or person, which may be associated with roles or other concepts within the current or linked OSCAL document.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    uuid: constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$') = Field(..., description='A unique identifier for the party.', title='Party Universally Unique Identifier')
+    type: PartyTypeValidValues = Field(..., description='A category describing the kind of party the object describes.', title='Party Type')
+    name: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, description='The full name of the party. This is typically the legal name associated with the party.', title='Party Name')
+    short_name: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(None, alias='short-name', description='A short common name, abbreviation, or acronym for the party.', title='Party Short Name')
+    external_ids: Optional[List[ExternalId]] = Field(None, alias='external-ids')
+    props: Optional[List[common.Property]] = Field(None)
+    links: Optional[List[common.Link]] = Field(None)
+    email_addresses: Optional[List[EmailAddressDatatype]] = Field(None, alias='email-addresses')
+    telephone_numbers: Optional[List[TelephoneNumber]] = Field(None, alias='telephone-numbers')
+    addresses: Optional[List[Address]] = Field(None)
+    location_uuids: Optional[List[constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$')]] = Field(None, alias='location-uuids')
+    member_of_organizations: Optional[List[constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$')]] = Field(None, alias='member-of-organizations')
+    remarks: Optional[str] = None
+
+
+class Metadata(OscalBaseModel):
+    """
+    Provides information about the containing document, and defines concepts that are shared across the document.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    title: str = Field(..., description='A name given to the document, which may be used by a tool for display and navigation.', title='Document Title')
+    published: Optional[datetime] = None
+    last_modified: datetime = Field(..., alias='last-modified')
+    version: constr(regex=r'^\S(.*\S)?$')
+    oscal_version: common.OscalVersion = Field(..., alias='oscal-version')
+    revisions: Optional[List[common.Revision]] = Field(None)
+    document_ids: Optional[List[DocumentId]] = Field(None, alias='document-ids')
+    props: Optional[List[common.Property]] = Field(None)
+    links: Optional[List[common.Link]] = Field(None)
+    roles: Optional[List[common.Role]] = Field(None)
+    locations: Optional[List[Location]] = Field(None)
+    parties: Optional[List[Party]] = Field(None)
+    responsible_parties: Optional[List[common.ResponsibleParty]] = Field(None, alias='responsible-parties')
+    actions: Optional[List[common.Action]] = Field(None)
+    remarks: Optional[str] = None
+
+
 class AssessmentPlan(OscalBaseModel):
     """
     An assessment plan, such as those provided by a FedRAMP assessor.
@@ -75,30 +207,15 @@ class AssessmentPlan(OscalBaseModel):
     class Config:
         extra = Extra.forbid
 
-    uuid: constr(
-        regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
-    ) = Field(
+    uuid: constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$') = Field(
         ...,
-        description=
-        'A machine-oriented, globally unique identifier with cross-instance scope that can be used to reference this assessment plan in this or other OSCAL instances. The locally defined UUID of the assessment plan can be used to reference the data item locally or globally (e.g., in an imported OSCAL instance). This UUID should be assigned per-subject, which means it should be consistently used to identify the same subject across revisions of the document.',
+        description='A machine-oriented, globally unique identifier with cross-instance scope that can be used to reference this assessment plan in this or other OSCAL instances. The locally defined UUID of the assessment plan can be used to reference the data item locally or globally (e.g., in an imported OSCAL instance). This UUID should be assigned per-subject, which means it should be consistently used to identify the same subject across revisions of the document.',
         title='Assessment Plan Universally Unique Identifier',
     )
-    metadata: common.Metadata
+    metadata: Metadata
     import_ssp: common.ImportSsp = Field(..., alias='import-ssp')
-    local_definitions: Optional[LocalDefinitions] = Field(
-        None,
-        alias='local-definitions',
-        description=
-        'Used to define data objects that are used in the assessment plan, that do not appear in the referenced SSP.',
-        title='Local Definitions'
-    )
-    terms_and_conditions: Optional[TermsAndConditions] = Field(
-        None,
-        alias='terms-and-conditions',
-        description=
-        'Used to define various terms and conditions under which an assessment, described by the plan, can be performed. Each child part defines a different type of term or condition.',
-        title='Assessment Plan Terms and Conditions'
-    )
+    local_definitions: Optional[LocalDefinitions] = Field(None, alias='local-definitions', description='Used to define data objects that are used in the assessment plan, that do not appear in the referenced SSP.', title='Local Definitions')
+    terms_and_conditions: Optional[TermsAndConditions] = Field(None, alias='terms-and-conditions', description='Used to define various terms and conditions under which an assessment, described by the plan, can be performed. Each child part defines a different type of term or condition.', title='Assessment Plan Terms and Conditions')
     reviewed_controls: common.ReviewedControls = Field(..., alias='reviewed-controls')
     assessment_subjects: Optional[List[common.AssessmentSubject]] = Field(None, alias='assessment-subjects')
     assessment_assets: Optional[common.AssessmentAssets] = Field(None, alias='assessment-assets')
