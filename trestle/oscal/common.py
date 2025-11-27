@@ -628,6 +628,25 @@ class DocumentSchemeValidValues(Enum):
     http___www_doi_org_ = 'http://www.doi.org/'
 
 
+class DocumentId(OscalBaseModel):
+    """
+    A document identifier qualified by an identifier scheme.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    scheme: Optional[Union[URIDatatype, DocumentSchemeValidValues]] = Field(
+        None,
+        description=(
+            'Qualifies the kind of document identifier using a URI. If the scheme is not provided the value of the '
+            'element will be interpreted as a string of characters.'
+        ),
+        title='Document Identification Scheme'
+    )
+    identifier: constr(regex=r'^\S(.*\S)?$')
+
+
 class Dependency(OscalBaseModel):
     """
     Used to indicate that a task is dependent on another task.
@@ -1710,3 +1729,4 @@ class Party(OscalBaseModel):
         None, alias='member-of-organizations'
     )
     remarks: Optional[str] = None
+
