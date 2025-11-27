@@ -815,10 +815,37 @@ class Algorithm(Enum):
     SHA3_384 = 'SHA3-384'
     SHA3_512 = 'SHA3-512'
 
-
 class AddressTypeValidValues(Enum):
     home = 'home'
     work = 'work'
+
+
+class Address(OscalBaseModel):
+    """
+    A postal address for the location.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    type: Optional[Union[TokenDatatype, AddressTypeValidValues]] = Field(
+        None, description='Indicates the type of address.', title='Address Type'
+    )
+    addr_lines: Optional[List[constr(regex=r'^\S(.*\S)?$')]] = Field(None, alias='addr-lines')
+    city: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None, description='City, town or geographical region for the mailing address.', title='City'
+    )
+    state: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None, description='State, province or analogous geographical region for a mailing address.', title='State'
+    )
+    postal_code: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None, alias='postal-code', description='Postal or ZIP code for mailing address.', title='Postal Code'
+    )
+    country: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None, description='The ISO 3166-1 alpha-2 country code for the mailing address.', title='Country Code'
+    )
+
+
 
 
 class AddrLine(OscalBaseModel):
