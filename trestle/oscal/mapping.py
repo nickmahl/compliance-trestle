@@ -403,7 +403,7 @@ class MappingCollection(OscalBaseModel):
     uuid: constr(regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$') = Field(..., description='A globally unique identifier with cross-instance scope for this catalog instance. This UUID should be changed when this document is revised.', title='Mapping Collection Universally Unique Identifier')
     metadata: Metadata
     provenance: MappingProvenance
-    mappings: Union[OscalMappingOscalMappingCommonMapping, List[Mapping]]
+    mappings: Union[Mapping, List[Mapping]]
     back_matter: Optional[common.BackMatter] = Field(None, alias='back-matter')
 
 
