@@ -35,6 +35,8 @@ from pydantic.v1 import AnyUrl, EmailStr, Extra, Field, conint, constr, validato
 from trestle.core.base_model import OscalBaseModel
 from trestle.oscal import OSCAL_VERSION_REGEX, OSCAL_VERSION
 import trestle.oscal.common as common
+# Import all common OSCAL types so forward references in annotations resolve.
+from trestle.oscal.common import *  # noqa: F401,F403
 
 
 class WithId(OscalBaseModel):

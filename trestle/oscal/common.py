@@ -294,6 +294,8 @@ class PositiveIntegerDatatype(OscalBaseModel):
     An integer value that is greater than 0.
     """
 
+    __root__: conint(gt=0, multiple_of=1) = Field(..., description='An integer value that is greater than 0.')
+
 
 class PortRangeValidValues(Enum):
     TCP = 'TCP'
@@ -413,6 +415,8 @@ class NonNegativeIntegerDatatype(OscalBaseModel):
     """
     An integer value that is equal to or greater than 0.
     """
+
+    __root__: conint(ge=0, multiple_of=1) = Field(..., description='An integer value that is equal to or greater than 0.')
 
 
 class NamingSystemValidValues(Enum):
@@ -612,6 +616,8 @@ class EmailAddressDatatype(OscalBaseModel):
     """
     An email address string formatted according to RFC 6531.
     """
+
+    __root__: EmailStr = Field(..., description='An email address string formatted according to RFC 6531.', title='Email Address')
 
 
 class EmailAddress(OscalBaseModel):
@@ -1704,4 +1710,3 @@ class Party(OscalBaseModel):
         None, alias='member-of-organizations'
     )
     remarks: Optional[str] = None
-
