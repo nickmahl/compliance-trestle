@@ -1633,3 +1633,75 @@ class Risk(OscalBaseModel):
     related_observations: Optional[List[RelatedObservation]] = Field(None, alias='related-observations')
 
 
+class Metadata(OscalBaseModel):
+    """
+    Provides information about the containing document, and defines concepts that are shared across the document.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    title: str = Field(
+        ...,
+        description='A name given to the document, which may be used by a tool for display and navigation.',
+        title='Document Title'
+    )
+    published: Optional[datetime] = None
+    last_modified: datetime = Field(..., alias='last-modified')
+    version: constr(regex=r'^\S(.*\S)?$')
+    oscal_version: OscalVersion = Field(..., alias='oscal-version')
+    revisions: Optional[List[Revision]] = Field(None)
+    document_ids: Optional[List[DocumentId]] = Field(None, alias='document-ids')
+    props: Optional[List[Property]] = Field(None)
+    links: Optional[List[Link]] = Field(None)
+    roles: Optional[List[Role]] = Field(None)
+    locations: Optional[List[Location]] = Field(None)
+    parties: Optional[List[Party]] = Field(None)
+    responsible_parties: Optional[List[ResponsibleParty]] = Field(None, alias='responsible-parties')
+    actions: Optional[List[Action]] = Field(None)
+    remarks: Optional[str] = None
+
+
+class Party(OscalBaseModel):
+    """
+    An organization or person, which may be associated with roles or other concepts within the current or linked OSCAL document.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    uuid: constr(
+        regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
+    ) = Field(..., description='A unique identifier for the party.', title='Party Universally Unique Identifier')
+    type: PartyTypeValidValues = Field(
+        ..., description='A category describing the kind of party the object describes.', title='Party Type'
+    )
+    name: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None,
+        description='The full name of the party. This is typically the legal name associated with the party.',
+        title='Party Name'
+    )
+    short_name: Optional[constr(regex=r'^\S(.*\S)?$')] = Field(
+        None,
+        alias='short-name',
+        description='A short common name, abbreviation, or acronym for the party.',
+        title='Party Short Name'
+    )
+    external_ids: Optional[List[ExternalId]] = Field(None, alias='external-ids')
+    props: Optional[List[Property]] = Field(None)
+    links: Optional[List[Link]] = Field(None)
+    email_addresses: Optional[List[EmailAddress]] = Field(None, alias='email-addresses')
+    telephone_numbers: Optional[List[TelephoneNumber]] = Field(None, alias='telephone-numbers')
+    addresses: Optional[List[Address]] = Field(None)
+    location_uuids: Optional[List[constr(
+        regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
+    )]] = Field(
+        None, alias='location-uuids'
+    )
+    member_of_organizations: Optional[List[constr(
+        regex=r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[45][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
+    )]] = Field(
+        None, alias='member-of-organizations'
+    )
+    remarks: Optional[str] = None
+
